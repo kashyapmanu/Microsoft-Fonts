@@ -1,7 +1,7 @@
 os: osx
 
 before_script:
-  - brew cask install microsoft-onenote microsoft-word
+  - brew cask install microsoft-office
 
 script:
   - mkdir Fonts
