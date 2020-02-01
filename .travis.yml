@@ -1,19 +1,20 @@
 os: osx
 
 before_script:
-  - brew cask install microsoft-office
+  - file=$(curl -fsSL "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/microsoft-office.rb")
+  - version=$(echo "$file" | grep version | head -1 | perl -ne 'print if s/ +version +'\''(.+)'\''/${1}/')
+  - url=$(eval "echo $(echo "$file" | grep url | perl -pe 's/#/\$/' | perl -ne 'print if s/ +url +"(.+)"/${1}/')")
+  - curl -fsSL $url -o installer.pkg
 
 script:
-  - mkdir Fonts
-  - FONT_DIR=$(/Applications/Microsoft\ OneNote.app/Contents/Resources/ | ls -d */ | grep -i "fonts")
-  - cp -av /Applications/Microsoft\ OneNote.app/Contents/Resources/${FONT_DIR}/* ./Fonts/
-  - cp -av /Applications/Microsoft\ Word.app/Contents/Resources/${FONT_DIR}/* ./Fonts/
+  - pkgutil --expand-full installer.pkg tmp
+  - mv tmp/Office_fonts.pkg/Payload/DFonts Fonts
 
 after_script:
   - cd Fonts
   - git init
   - git config user.name "SomeBlu"
-  - git config user.email "webmaster@someblu.com"
+  - git config user.email "zhoujiahao@bytedance.com"
   - git add .
   - git commit -m "Update"
   - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:master
@@ -28,6 +29,6 @@ env:
 
 notifications:
   email:
-    - webmaster@someblu.com
+    - zhoujiahao@bytedance.com
   on_success: change
   on_failure: always
